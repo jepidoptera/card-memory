@@ -1,0 +1,27 @@
+.card {
+    width: Calc(33.3% - 20px);
+    height: Calc(33.3% - 20px);
+    background-color: rgb(72,72,72);
+    position: absolute;
+    display: block;
+    padding: 0;
+    margin: 10px;
+    transition: 500ms;
+    border: 2px solid white;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.cardImg {
+    width: 80%;
+    height: 80%;
+    display: block;
+    position: relative;
+    background-color: gray;
+    border: 2px solid white;
+    border-radius: 3px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+

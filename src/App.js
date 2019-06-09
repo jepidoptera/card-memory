@@ -24,17 +24,17 @@ class App extends Component {
         for (let i = 0; i < 25; i++) { cardOrder.push(i) };
         // make one card for each loaded image
         CardImages.forEach((image, i) => {
-            cards[i] = {img: image, clicked: false};
+            cards[i] = { img: image, clicked: false };
         });
         // console.log(cards);
         // set state
         this.setState({
             cards: cards,
             cardOrder: cardOrder,
-            message: ["card memory game", "0 points :: high score " + this.state.highScore]
+            message: ["0 points", `high score ${this.state.highScore}`]
         });
         this.shuffle();
-    }
+    };
 
     reset = () => {
         // reset cards
@@ -45,12 +45,12 @@ class App extends Component {
         // reset answers
         this.setState({
             rightAnswers: 0,
-            message: ["card memory game", "0 points :: high score " + this.state.highScore],
+            message: ["0 points", `high score: ${this.state.highScore}`],
             cards: cards
         });
         // shuffle
         this.shuffle();
-    }
+    };
 
     clickCard = (i) => {
         let cards = this.state.cards;
@@ -70,7 +70,7 @@ class App extends Component {
             highScore = (highScore >= rightAnswers) ? highScore : parseInt(highScore) + 1;
             localStorage.setItem("highScore", highScore);
             this.setState({
-                message: ["so far so good...", `${rightAnswers} points  :: high score ${highScore}`],
+                message: ["so far so good...", `${rightAnswers} points`,  `high score: ${highScore}`],
                 rightAnswers: rightAnswers,
                 highScore: highScore,
                 cards: cards
@@ -121,24 +121,25 @@ class App extends Component {
         let totalCards = sideLength * sideLength;
         return (
         <div className="App">
-            <header className="App-header">
-                    {this.state.message.map((message, i) => <span key={i}>{message}</span>)}
-                    <div id="diffSelect">
-                        <select onChange={this.selectDifficulty} defaultValue={['0', '1', '2', '3'][this.state.difficulty]}>
+                <header id="infoPanel">
+                    <p>card memory game</p>
+                    {this.state.message.map((message, i) => <p key={i}>{message}</p>)}
+                    <select id="diffSelect" onChange={this.selectDifficulty} defaultValue={['0', '1', '2', '3'][this.state.difficulty]}>
                         <option value="1">Easy</option>
                         <option value="2">Medium</option>
                         <option value="3">Hard</option>
                     </select>
+                </header>
+                <div id="gameArea">
+                    <div id="cardTable">
+                        {this.state.cards.map((card, i) => {
+                            return ((i < totalCards)
+                                ? (< Card id={i} onClick={this.clickCard} img={card.img} x={i % sideLength
+                                    } y = { Math.floor(i / sideLength) } sideLength={sideLength} key = { i } alt = { 'card image'} ></Card>)
+                                : <div key={i}></div>)
+                        })}
+                    </div>
                 </div>
-            </header>
-            <div id="cardTable">
-                {this.state.cards.map((card, i) => {
-                    return ((i < totalCards)
-                        ? (< Card id={i} onClick={this.clickCard} img={card.img} x={i % sideLength
-                            } y = { Math.floor(i / sideLength) } sideLength={sideLength} key = { i } alt = { 'card image'} ></Card>)
-                        : <div key={i}></div>)
-           })}
-            </div>
         </div>
     )}
 }

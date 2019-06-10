@@ -24,7 +24,7 @@ class App extends Component {
         for (let i = 0; i < 25; i++) { cardOrder.push(i) };
         // make one card for each loaded image
         CardImages.forEach((image, i) => {
-            cards[i] = { img: image, clicked: false };
+            cards[i] = { img: image, clicked: false, x: 0, y: 0, fall: 0 };
         });
         // console.log(cards);
         // set state
@@ -59,9 +59,41 @@ class App extends Component {
         // console.log(cards);
         if (cards[i].clicked) {
             // fail
-            this.setState({ message: ["you already guessed that one.",  "you lose."] });
+            this.setState({
+                message: ["you already clicked that one.", "you lose."],
+                highlight: "red"
+            });
+
+            let cards = this.state.cards;
+            // cards fly in different directions
+            cards.forEach(card => {
+                card.fly = Math.random() * 0.1 - 0.05;
+                card.fall = 0.1;
+            });
+            this.setState({ cards: cards });
+
+            // all cards fall
+            var cardFall = setInterval(() => {
+                let cards = this.state.cards;
+                cards.forEach(card => {
+                    card.fall += 0.0225;
+                    card.y += card.fall;
+                    card.x += card.fly;
+                });
+                this.setState({ cards: cards });
+            }, 50);
+            
             // reset all cards
-            setTimeout(this.reset, 2000);
+            setTimeout(() => {
+                let cards = this.state.cards;
+                // stop moving
+                cards.forEach(card => { card.x = 0; card.y = 0; card.fall = 0; });
+                clearInterval(cardFall);
+                // new game
+                this.reset();
+                // apply card changes and clear style
+                this.setState({ cards: cards, highlight: "" });
+            }, 3000);
         }
         else {
             // good guess
@@ -75,6 +107,8 @@ class App extends Component {
                 highScore: highScore,
                 cards: cards
             });
+            // else console.log(rightAnswers + " < " + winning);
+            this.shuffle();
         }
         // is that it?? did we win??
         let winning = (this.state.difficulty + 2) * (this.state.difficulty + 2);
@@ -84,9 +118,6 @@ class App extends Component {
             setTimeout(this.reset, 2000);
             return;
         }
-        // else console.log(rightAnswers + " < " + winning);
-
-        this.shuffle();
     }
 
     shuffle = () => {
@@ -119,9 +150,10 @@ class App extends Component {
         // put the cards in a square
         let sideLength = this.state.difficulty + 2;
         let totalCards = sideLength * sideLength;
+        let cstyle = this.state.highlight ? { "background-color": this.state.highlight } : {};
         return (
         <div className="App">
-                <header id="infoPanel">
+                <header id="infoPanel" style={cstyle} >
                     <p>card memory game</p>
                     {this.state.message.map((message, i) => <p key={i}>{message}</p>)}
                     <select id="diffSelect" onChange={this.selectDifficulty} defaultValue={['0', '1', '2', '3'][this.state.difficulty]}>
@@ -134,8 +166,8 @@ class App extends Component {
                     <div id="cardTable">
                         {this.state.cards.map((card, i) => {
                             return ((i < totalCards)
-                                ? (< Card id={i} onClick={this.clickCard} img={card.img} x={i % sideLength
-                                    } y = { Math.floor(i / sideLength) } sideLength={sideLength} key = { i } alt = { 'card image'} ></Card>)
+                                ? (< Card id={i} onClick={this.clickCard} img={card.img} x={i % sideLength + card.x
+                                    } y = { Math.floor(i / sideLength) + card.y} sideLength={sideLength} key = { i } alt = { 'card image'} ></Card>)
                                 : <div key={i}></div>)
                         })}
                     </div>
